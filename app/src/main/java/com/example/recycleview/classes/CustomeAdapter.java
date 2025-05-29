@@ -1,98 +1,94 @@
 package com.example.recycleview.classes;
 
 import android.app.AlertDialog;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.recycleview.R;
 import com.example.recycleview.Models.DataModel;
+
 import java.util.ArrayList;
 
 public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.MyViewHolder> {
 
-    private ArrayList<DataModel> originalList; // The original full list
-    private ArrayList<DataModel> filteredList; // The filtered list to display
+    private ArrayList<DataModel> originalList;
+    private ArrayList<DataModel> filteredList;
 
-    public CustomeAdapter(ArrayList<DataModel> dataSet) {
-        this.originalList = new ArrayList<>(dataSet); // Save a copy of the original list
-        this.filteredList = dataSet; // Initialize with the full list
-    }
-
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewName;
-        TextView textViewDescription;
-        ImageView imageView;
-
-        public MyViewHolder(@NonNull View itemView) {
-            super(itemView);
-            textViewName = itemView.findViewById(R.id.textView);
-            textViewDescription = itemView.findViewById(R.id.textView2);
-            imageView = itemView.findViewById(R.id.imageView);
-        }
+    public CustomeAdapter(ArrayList<DataModel> data) {
+        filteredList = data;
+        originalList = new ArrayList<>(data);
     }
 
     @NonNull
     @Override
-    public CustomeAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_row, parent, false);
-        return new MyViewHolder(view);
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_row, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CustomeAdapter.MyViewHolder holder, int position) {
-        DataModel dataModel = filteredList.get(position);
-        holder.textViewName.setText(dataModel.getName());
-        holder.textViewDescription.setText(dataModel.getDescription());
-        holder.imageView.setImageResource(dataModel.getImage());
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        DataModel item = filteredList.get(position);
+        holder.name.setText(item.getName());
+        holder.desc.setText(item.getDescription());
+        holder.image.setImageResource(item.getImage());
 
         holder.itemView.setOnClickListener(v -> {
-            ImageView imageViewCopy = new ImageView(v.getContext());
-            imageViewCopy.setImageDrawable(holder.imageView.getDrawable());
-            imageViewCopy.setLayoutParams(new ViewGroup.LayoutParams(
+            ImageView copy = new ImageView(v.getContext());
+            copy.setImageDrawable(holder.image.getDrawable());
+            copy.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
 
-            AlertDialog dialog = new AlertDialog.Builder(v.getContext())
-                    .setTitle(holder.textViewName.getText())
-                    .setMessage(holder.textViewDescription.getText())
-                    .setView(imageViewCopy)
-                    .setPositiveButton("Close", (dialogInterface, which) -> dialogInterface.dismiss())
+            AlertDialog alert = new AlertDialog.Builder(v.getContext())
+                    .setTitle(holder.name.getText())
+                    .setMessage(holder.desc.getText())
+                    .setView(copy)
+                    .setPositiveButton("Close", (d, w) -> d.dismiss())
                     .create();
 
-            dialog.show();
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setLayout(800, 800);
+            alert.show();
+            if (alert.getWindow() != null) {
+                alert.getWindow().setLayout(800, 800);
             }
         });
     }
 
     @Override
-    public int getItemCount()
-    {
+    public int getItemCount() {
         return filteredList.size();
     }
 
-    public void filter(String text)
-    {
-        text = text.toLowerCase();
+    public void filter(String text) {
+        String query = text.toLowerCase();
         filteredList = new ArrayList<>();
-        if (text.isEmpty()) {
+        if (query.isEmpty()) {
             filteredList.addAll(originalList);
         } else {
-            for (DataModel item : originalList) {
-                if (item.getName().toLowerCase().contains(text))
-                {
-                    filteredList.add(item);
+            for (DataModel model : originalList) {
+                if (model.getName().toLowerCase().contains(query)) {
+                    filteredList.add(model);
                 }
             }
         }
         notifyDataSetChanged();
     }
 
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
+        TextView name, desc;
+        ImageView image;
 
+        public MyViewHolder(@NonNull View itemView) {
+            super(itemView);
+            name = itemView.findViewById(R.id.textView);
+            desc = itemView.findViewById(R.id.textView2);
+            image = itemView.findViewById(R.id.imageView);
+        }
+    }
 }

@@ -10,51 +10,65 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.recycleview.R;
-import java.util.ArrayList;
 import com.example.recycleview.classes.CustomeAdapter;
 import com.example.recycleview.classes.MyData;
 import com.example.recycleview.Models.DataModel;
 
-public class MainActivity extends AppCompatActivity
-{
-    private ArrayList<DataModel> dataSet;
-    private RecyclerView recyclerView;
-    private LinearLayoutManager layoutManager;
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity {
+    private RecyclerView recycler;
     private CustomeAdapter adapter;
+    private ArrayList<DataModel> characterList;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        applyWindowInsets();
+
+        recycler = findViewById(R.id.recycleView);
+        characterList = loadCharacters();
+        adapter = new CustomeAdapter(characterList);
+
+        setupRecyclerView();
+        setupSearch();
+    }
+
+    private void applyWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
             return insets;
         });
+    }
 
-        dataSet = new ArrayList<>();
-        recyclerView = findViewById(R.id.recycleView);
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        for (int i = 0; i < MyData.nameArray.length ; i++){
-            dataSet.add(new DataModel(
+    private ArrayList<DataModel> loadCharacters() {
+        ArrayList<DataModel> list = new ArrayList<>();
+        for (int i = 0; i < MyData.nameArray.length; i++) {
+            list.add(new DataModel(
                     MyData.nameArray[i],
                     MyData.descriptionArray[i],
                     MyData.drawableArray[i],
                     MyData.id_[i]
             ));
         }
+        return list;
+    }
 
-        adapter = new CustomeAdapter(dataSet);
-        recyclerView.setAdapter(adapter);
+    private void setupRecyclerView() {
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        recycler.setItemAnimator(new DefaultItemAnimator());
+        recycler.setAdapter(adapter);
+    }
 
-        SearchView searchView = findViewById(R.id.searchView);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+    private void setupSearch() {
+        SearchView search = findViewById(R.id.searchView);
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
